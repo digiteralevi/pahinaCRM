@@ -1,645 +1,548 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
-} from 'recharts';
-import { 
-  LayoutDashboard, Folder, Calendar as CalendarIcon, UserX, Settings, Bell, HelpCircle, 
-  TrendingUp, Wallet, FileText, Users, UserPlus, Search, Menu, X, Mail, ChevronLeft, ChevronRight, 
-  MoreHorizontal, Plus, Filter, Download, Eye, CheckCircle2, XCircle, Clock, ArrowUpRight, ArrowDownRight, 
-  ShieldAlert, Phone, MessageSquare, Check, Sparkles, ExternalLink, Moon, Command, Zap, Layers,
-  Activity, CheckSquare, ShieldCheck, PieChart, Sliders
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PahinaCRM • Client & Operations Hub</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-// ==========================================
-// BRANDING CONFIGURATION FOR PAHINA BUILDER SUITE
-// ==========================================
-const BRAND_CONFIG = {
-  name: "PahinaCRM",
-  suite: "Pahina Builder Suite",
-  initial: "P",
-  tagline: "Agency & VA Client Operations Hub"
-};
-
-// ==========================================
-// MOCK DATA FOR ENTERPRISE MODULES
-// ==========================================
-const salesPerformanceData = [
-  { month: 'Jan', revenue: 45000, target: 40000 },
-  { month: 'Feb', revenue: 52000, target: 42000 },
-  { month: 'Mar', revenue: 49000, target: 45000 },
-  { month: 'Apr', revenue: 63000, target: 50000 },
-  { month: 'May', revenue: 58000, target: 52000 },
-  { month: 'Jun', revenue: 71000, target: 55000 },
-  { month: 'Jul', revenue: 84000, target: 60000 },
-  { month: 'Aug', revenue: 79000, target: 65000 },
-  { month: 'Sep', revenue: 92000, target: 70000 },
-  { month: 'Oct', revenue: 88000, target: 75000 },
-  { month: 'Nov', revenue: 105000, target: 80000 },
-  { month: 'Dec', revenue: 118000, target: 85000 }
-];
-
-const emailMetricsData = [
-  { month: 'W1', ctr: 4.2, openRate: 24.5 },
-  { month: 'W2', ctr: 4.8, openRate: 26.1 },
-  { month: 'W3', ctr: 5.1, openRate: 28.4 },
-  { month: 'W4', ctr: 5.9, openRate: 31.2 },
-  { month: 'W5', ctr: 6.4, openRate: 33.8 },
-  { month: 'W6', ctr: 6.2, openRate: 32.5 }
-];
-
-const teamPerformanceData = [
-  { month: 'Q1', performance: 78, score: 82 },
-  { month: 'Q2', performance: 85, score: 88 },
-  { month: 'Q3', performance: 91, score: 94 },
-  { month: 'Q4', performance: 96, score: 98 }
-];
-
-const teamMembers = [
-  { id: '1', name: 'Alex Vance', email: 'alex.vance@pahinacrm.io', role: 'Lead Architect', department: 'Engineering', status: 'Active', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150' },
-  { id: '2', name: 'Elena Rostova', email: 'elena.r@pahinacrm.io', role: 'Product Manager', department: 'Product', status: 'Active', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=150' },
-  { id: '3', name: 'Marcus Chen', email: 'm.chen@pahinacrm.io', role: 'Senior Designer', department: 'Design', status: 'On Leave', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150' },
-  { id: '4', name: 'Sarah Jenkins', email: 's.jenkins@pahinacrm.io', role: 'Account Exec', department: 'Sales', status: 'Active', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150' },
-  { id: '5', name: 'David Kim', email: 'd.kim@pahinacrm.io', role: 'DevOps Lead', department: 'Operations', status: 'Active', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150' }
-];
-
-const projectsData = [
-  { id: 'P-101', name: 'Enterprise Cloud Migration', description: 'Migrating legacy infrastructure to AWS microservices stack.', status: 'Active', priority: 'High', progress: 74, dueDate: 'Nov 30', budget: '$120,000', spend: '$88,500', members: teamMembers.slice(0, 3) },
-  { id: 'P-102', name: 'Pahina Mobile Client v3', description: 'Complete redesign of iOS/Android applications using React Native.', status: 'Active', priority: 'Critical', progress: 45, dueDate: 'Jan 15', budget: '$95,000', spend: '$42,000', members: teamMembers.slice(1, 4) },
-  { id: 'P-103', name: 'AI Customer Assistant', description: 'LLM-powered automated support chat integration.', status: 'Completed', priority: 'Medium', progress: 100, dueDate: 'Oct 28', budget: '$45,000', spend: '$44,200', members: teamMembers.slice(2, 5) },
-  { id: 'P-104', name: 'ISO 27001 Security Audit', description: 'Compliance review and internal security hardening.', status: 'On Hold', priority: 'High', progress: 30, dueDate: 'Feb 20', budget: '$30,000', spend: '$9,100', members: teamMembers.slice(0, 2) }
-];
-
-const invoiceRecords = [
-  { id: 'INV-2026-001', client: 'Acme Global Corp', amount: '$14,250.00', issueDate: 'Nov 01, 2026', dueDate: 'Nov 15, 2026', status: 'Pending' },
-  { id: 'INV-2026-002', client: 'Starlight Tech Inc', amount: '$38,900.00', issueDate: 'Oct 15, 2026', dueDate: 'Oct 30, 2026', status: 'Paid' },
-  { id: 'INV-2026-003', client: 'Apex Logistics LLC', amount: '$8,400.00', issueDate: 'Sep 20, 2026', dueDate: 'Oct 04, 2026', status: 'Overdue' },
-  { id: 'INV-2026-004', client: 'Nexus Ventures', amount: '$22,100.00', issueDate: 'Nov 03, 2026', dueDate: 'Nov 17, 2026', status: 'Sent' }
-];
-
-const payrollRecords = [
-  { id: 'PAY-801', employee: 'Alex Vance', base: '$12,500', overtime: '$850', bonuses: '$2,000', deductions: '-$3,100', netPay: '$12,250', status: 'Processed' },
-  { id: 'PAY-802', employee: 'Elena Rostova', base: '$11,000', overtime: '$0', bonuses: '$1,500', deductions: '-$2,600', netPay: '$9,900', status: 'Processed' },
-  { id: 'PAY-803', employee: 'Marcus Chen', base: '$9,800', overtime: '$320', bonuses: '$800', deductions: '-$2,100', netPay: '$8,820', status: 'Pending' },
-  { id: 'PAY-804', employee: 'Sarah Jenkins', base: '$8,500', overtime: '$1,100', bonuses: '$3,400', deductions: '-$2,450', netPay: '$10,550', status: 'Pending' }
-];
-
-const leaveRequests = [
-  { id: 'LV-12', employee: 'Marcus Chen', type: 'Annual Paid Leave', duration: '5 Days', dates: 'Nov 10 - Nov 15', status: 'Pending', appliedDate: 'Nov 02' },
-  { id: 'LV-13', employee: 'Elena Rostova', type: 'Sick Leave', duration: '2 Days', dates: 'Nov 04 - Nov 05', status: 'Approved', appliedDate: 'Nov 03' },
-  { id: 'LV-14', employee: 'David Kim', type: 'Maternity/Paternity', duration: '14 Days', dates: 'Dec 01 - Dec 14', status: 'Pending', appliedDate: 'Oct 29' },
-  { id: 'LV-15', employee: 'Alex Vance', type: 'Unpaid Leave', duration: '1 Day', dates: 'Oct 24 - Oct 24', status: 'Rejected', appliedDate: 'Oct 20' }
-];
-
-const recruitmentJobs = [
-  { id: 'JOB-1', title: 'Senior Full Stack Engineer', department: 'Engineering', applicants: 42, status: 'Active', location: 'Remote' },
-  { id: 'JOB-2', title: 'Staff Data Scientist', department: 'AI & Data', applicants: 18, status: 'Active', location: 'Hybrid' },
-  { id: 'JOB-3', title: 'VP of Global Enterprise Sales', department: 'Sales', applicants: 9, status: 'Urgent', location: 'New York, USA' }
-];
-
-const candidatesList = [
-  { id: 'C-1', name: 'Julian Thorne', position: 'Senior Full Stack Engineer', stage: 'Technical Interview', score: 94, status: 'Interview' },
-  { id: 'C-2', name: 'Sophia Martinez', position: 'Staff Data Scientist', stage: 'Final Leadership', score: 98, status: 'Offer' },
-  { id: 'C-3', name: 'Liam O\'Connor', position: 'VP of Enterprise Sales', stage: 'Initial Screening', score: 76, status: 'Review' },
-  { id: 'C-4', name: 'Chloe Dubois', position: 'Senior Full Stack Engineer', stage: 'Code Assessment', score: 62, status: 'Rejected' }
-];
-
-const notificationList = [
-  { id: 'n-1', type: 'system', title: 'Security Advisory', desc: 'OAuth token rotation completed successfully for API gateway.', time: '10 min ago', high: true, unread: true },
-  { id: 'n-2', type: 'calendar', title: 'Executive Sync Meeting', desc: 'Scheduled with Board of Directors for 3:00 PM EST.', time: '45 min ago', high: false, unread: true },
-  { id: 'n-3', type: 'user', title: 'New Leave Request', desc: 'Marcus Chen submitted 5 days of Annual Paid Leave.', time: '2 hours ago', high: false, unread: false },
-  { id: 'n-4', type: 'alert', title: 'Invoice Overdue', desc: 'Invoice INV-2026-003 for Apex Logistics is now 30 days overdue.', time: '5 hours ago', high: true, unread: false }
-];
-
-// Custom Chart Tooltip
-const CustomChartTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-[#12141c]/90 border border-white/10 rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs">
-        <p className="text-zinc-400 font-medium mb-1">{label}</p>
-        {payload.map((entry, index) => (
-          <div key={`item-${index}`} className="flex items-center gap-2 font-semibold py-0.5" style={{ color: entry.color }}>
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span>{entry.name}:</span>
-            <span className="text-white">{entry.value.toLocaleString()}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
-
-export default function App() {
-  const [activeGroup, setActiveGroup] = useState('Overview');
-  const [activeTab, setActiveTab] = useState('Dashboard');
-  const [subSidebarOpen, setSubSidebarOpen] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [commandOpen, setCommandOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
-
-  // Grouped Navigation for Dual Sidebar Rail (All English)
-  const navStructure = [
-    {
-      group: 'Overview',
-      icon: LayoutDashboard,
-      subItems: [
-        { id: 'Dashboard', icon: Zap },
-        { id: 'Projects', icon: Folder },
-        { id: 'Calendar', icon: CalendarIcon }
-      ]
-    },
-    {
-      group: 'Workforce',
-      icon: Users,
-      subItems: [
-        { id: 'Employees', icon: Users },
-        { id: 'Performance', icon: TrendingUp },
-        { id: 'Leave Management', icon: UserX },
-        { id: 'Recruitment', icon: UserPlus }
-      ]
-    },
-    {
-      group: 'Financials',
-      icon: Wallet,
-      subItems: [
-        { id: 'Invoices', icon: FileText },
-        { id: 'Payrolls', icon: Wallet }
-      ]
-    },
-    {
-      group: 'System',
-      icon: Settings,
-      subItems: [
-        { id: 'Notifications', icon: Bell },
-        { id: 'Help Center', icon: HelpCircle },
-        { id: 'Settings', icon: Settings }
-      ]
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eep2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
     }
-  ];
+  </script>
 
-  // Cmd+K shortcut for Command Palette & Cmd+B for Sidebar toggle
-  useEffect(() => {
-    const handleKeyDown = (e) => {
+  <style>
+    body {
+      background-color: #0b0c10;
+      color: #f4f4f5;
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0c10;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f222e;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-indigo-500 selection:text-white flex flex-col h-screen overflow-hidden">
+
+  <!-- APP CONTAINER -->
+  <div class="flex flex-1 h-full overflow-hidden">
+    
+    <!-- 1. DUAL-SIDEBAR: PRIMARY ICON RAIL -->
+    <aside class="hidden md:flex flex-col items-center py-4 w-16 border-r border-white/5 bg-[#0e0f14] z-30 justify-between">
+      <div class="flex flex-col items-center gap-6">
+        <!-- Brand Emblem -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-indigo-400 flex items-center justify-center font-black text-white shadow-lg shadow-indigo-500/30 cursor-pointer">
+          P
+        </div>
+
+        <!-- Primary Rail Icons -->
+        <div class="flex flex-col gap-2 mt-2">
+          <button onclick="switchGroup('Overview')" id="rail-Overview" class="rail-btn p-3 rounded-xl transition-all relative group text-indigo-400 bg-indigo-600/20 border border-indigo-500/30">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            <span class="absolute left-16 top-2 bg-[#181a24] text-white text-[11px] font-semibold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap border border-white/10 shadow-xl z-50">Overview</span>
+          </button>
+          <button onclick="switchGroup('Workforce')" id="rail-Workforce" class="rail-btn p-3 rounded-xl transition-all relative group text-zinc-500 hover:text-zinc-200 hover:bg-white/5">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="absolute left-16 top-2 bg-[#181a24] text-white text-[11px] font-semibold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap border border-white/10 shadow-xl z-50">Workforce</span>
+          </button>
+          <button onclick="switchGroup('Financials')" id="rail-Financials" class="rail-btn p-3 rounded-xl transition-all relative group text-zinc-500 hover:text-zinc-200 hover:bg-white/5">
+            <i data-lucide="wallet" class="w-5 h-5"></i>
+            <span class="absolute left-16 top-2 bg-[#181a24] text-white text-[11px] font-semibold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap border border-white/10 shadow-xl z-50">Financials</span>
+          </button>
+          <button onclick="switchGroup('System')" id="rail-System" class="rail-btn p-3 rounded-xl transition-all relative group text-zinc-500 hover:text-zinc-200 hover:bg-white/5">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="absolute left-16 top-2 bg-[#181a24] text-white text-[11px] font-semibold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap border border-white/10 shadow-xl z-50">System</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center gap-3">
+        <button onclick="toggleCommandModal()" class="p-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all" title="Command Palette (Cmd+K)">
+          <i data-lucide="command" class="w-5 h-5"></i>
+        </button>
+        <div class="w-8 h-8 rounded-full border border-white/10 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="Avatar" class="w-full h-full object-cover" />
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. DUAL-SIDEBAR: SECONDARY CONTEXTUAL FLYOUT -->
+    <aside id="sub-sidebar" class="hidden md:flex flex-col border-r border-white/5 bg-[#101218] transition-all duration-300 z-20 w-56">
+      <div class="h-16 flex items-center justify-between px-4 border-b border-white/5">
+        <span id="group-title" class="font-bold text-xs uppercase tracking-wider text-zinc-400">Overview Module</span>
+        <button onclick="toggleSubSidebar()" class="text-zinc-500 hover:text-zinc-300 p-1">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <nav id="sub-nav-container" class="p-3 space-y-1 flex-1">
+        <!-- Dynamically rendered sub-nav links -->
+      </nav>
+    </aside>
+
+    <!-- MAIN COMMAND CENTER BODY -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- HEADER BAR -->
+      <header class="h-16 border-b border-white/5 bg-[#0b0c10]/80 backdrop-blur-md px-6 flex items-center justify-between z-10">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleMobileMenu()" class="md:hidden p-2 bg-white/5 rounded-lg">
+            <i data-lucide="menu" class="w-5 h-5 text-zinc-400"></i>
+          </button>
+          <button id="sub-sidebar-expand-btn" onclick="toggleSubSidebar()" class="hidden p-1.5 bg-white/5 rounded-lg text-zinc-400 hover:text-white mr-2">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+          <h1 id="page-header-title" class="text-base font-bold text-white tracking-tight">Dashboard</h1>
+        </div>
+
+        <!-- COMMAND PALETTE SEARCH TRIGGER -->
+        <div class="flex items-center gap-3">
+          <button onclick="toggleCommandModal()" class="hidden sm:flex items-center gap-3 bg-[#14161f] border border-white/10 rounded-xl px-3.5 py-1.5 text-xs text-zinc-400 hover:border-indigo-500/50 transition-all w-64">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-500"></i>
+            <span class="flex-1 text-left">Search commands...</span>
+            <kbd class="bg-white/10 text-zinc-300 px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>
+          </button>
+
+          <button class="p-2 rounded-xl bg-[#14161f] border border-white/10 text-zinc-400 hover:text-white relative">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5 ring-2 ring-[#0b0c10]"></span>
+          </button>
+
+          <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium text-xs px-4 py-2 rounded-xl shadow-lg shadow-indigo-600/20 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">New Action</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- DYNAMIC SCROLLABLE CONTENT -->
+      <main id="main-content" class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- Content injects here via JS -->
+      </main>
+    </div>
+  </div>
+
+  <!-- COMMAND PALETTE MODAL (Cmd+K) -->
+  <div id="command-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-20" onclick="toggleCommandModal()">
+    <div class="w-full max-w-lg bg-[#14161f] border border-white/10 rounded-2xl shadow-2xl p-4 space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+        <i data-lucide="search" class="w-4 h-4 text-zinc-500"></i>
+        <input type="text" placeholder="Type a command or module name..." autofocus class="bg-transparent text-sm text-white focus:outline-none w-full" />
+        <kbd class="text-[10px] text-zinc-500 bg-white/5 px-1.5 py-0.5 rounded">ESC</kbd>
+      </div>
+      <div class="space-y-1">
+        <div class="text-[10px] uppercase font-bold text-zinc-500 px-2 py-1">Quick Navigation</div>
+        <button onclick="switchTab('Dashboard'); toggleCommandModal()" class="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-300 hover:bg-indigo-600/20 hover:text-indigo-300 transition-all flex items-center justify-between">
+          <span>Go to Dashboard</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-zinc-500"></i>
+        </button>
+        <button onclick="switchTab('Projects'); toggleCommandModal()" class="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-300 hover:bg-indigo-600/20 hover:text-indigo-300 transition-all flex items-center justify-between">
+          <span>Go to Projects</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-zinc-500"></i>
+        </button>
+        <button onclick="switchTab('Invoices'); toggleCommandModal()" class="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-300 hover:bg-indigo-600/20 hover:text-indigo-300 transition-all flex items-center justify-between">
+          <span>Go to Invoices</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-zinc-500"></i>
+        </button>
+        <button onclick="switchTab('Employees'); toggleCommandModal()" class="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-300 hover:bg-indigo-600/20 hover:text-indigo-300 transition-all flex items-center justify-between">
+          <span>Go to Team Directory</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-zinc-500"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSPECTION DRAWER PANEL FOR PROJECTS -->
+  <div id="project-drawer" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end" onclick="closeDrawer()">
+    <div class="w-full max-w-md bg-[#12141c] h-full border-l border-white/10 p-6 space-y-6" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center pb-4 border-b border-white/10">
+        <div>
+          <span id="drawer-project-id" class="text-[10px] text-indigo-400 font-mono">P-101</span>
+          <h3 id="drawer-project-name" class="text-base font-bold text-white">Project Inspection</h3>
+        </div>
+        <button onclick="closeDrawer()"><i data-lucide="x" class="w-5 h-5 text-zinc-400"></i></button>
+      </div>
+      <div class="space-y-4 text-xs">
+        <div>
+          <span class="text-zinc-500 block mb-1">Description</span>
+          <p id="drawer-project-desc" class="text-zinc-300">Migrating infrastructure to cloud platform microservices.</p>
+        </div>
+        <div>
+          <span class="text-zinc-500 block mb-1">Budget Allocation</span>
+          <div id="drawer-project-budget" class="text-sm font-bold text-white">$88,500 of $120,000</div>
+        </div>
+        <button class="w-full py-2.5 bg-indigo-600 rounded-xl text-white font-semibold shadow-lg shadow-indigo-600/20">
+          Launch Workstation →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // NAVIGATION STRUCTURE DATA
+    const navStructure = [
+      {
+        group: 'Overview',
+        subItems: [
+          { id: 'Dashboard', icon: 'zap' },
+          { id: 'Projects', icon: 'folder' },
+          { id: 'Calendar', icon: 'calendar' }
+        ]
+      },
+      {
+        group: 'Workforce',
+        subItems: [
+          { id: 'Employees', icon: 'users' },
+          { id: 'Performance', icon: 'trending-up' },
+          { id: 'Leave Management', icon: 'user-x' },
+          { id: 'Recruitment', icon: 'user-plus' }
+        ]
+      },
+      {
+        group: 'Financials',
+        subItems: [
+          { id: 'Invoices', icon: 'file-text' },
+          { id: 'Payrolls', icon: 'wallet' }
+        ]
+      },
+      {
+        group: 'System',
+        subItems: [
+          { id: 'Notifications', icon: 'bell' },
+          { id: 'Help Center', icon: 'help-circle' },
+          { id: 'Settings', icon: 'settings' }
+        ]
+      }
+    ];
+
+    // STATE VARIABLES
+    let currentGroup = 'Overview';
+    let currentTab = 'Dashboard';
+    let subSidebarCollapsed = false;
+
+    // INITIALIZATION
+    window.onload = function() {
+      renderSubNav();
+      renderContent();
+      lucide.createIcons();
+    };
+
+    // SWITCH GROUP (Rail Click)
+    function switchGroup(groupName) {
+      currentGroup = groupName;
+      const groupObj = navStructure.find(g => g.group === groupName);
+      currentTab = groupObj.subItems[0].id;
+      
+      // Update Rail Buttons Styling
+      document.querySelectorAll('.rail-btn').forEach(btn => {
+        btn.className = "rail-btn p-3 rounded-xl transition-all relative group text-zinc-500 hover:text-zinc-200 hover:bg-white/5";
+      });
+      const activeRailBtn = document.getElementById(`rail-${groupName}`);
+      if(activeRailBtn) {
+        activeRailBtn.className = "rail-btn p-3 rounded-xl transition-all relative group text-indigo-400 bg-indigo-600/20 border border-indigo-500/30";
+      }
+
+      document.getElementById('group-title').innerText = `${groupName} Module`;
+      renderSubNav();
+      switchTab(currentTab);
+    }
+
+    // RENDER SECONDARY NAV
+    function renderSubNav() {
+      const container = document.getElementById('sub-nav-container');
+      const groupObj = navStructure.find(g => g.group === currentGroup);
+      
+      container.innerHTML = groupObj.subItems.map(item => `
+        <button onclick="switchTab('${item.id}')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+          currentTab === item.id 
+            ? 'bg-gradient-to-r from-indigo-600/20 to-violet-600/10 text-indigo-300 border border-indigo-500/30' 
+            : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5'
+        }">
+          <i data-lucide="${item.icon}" class="w-4 h-4 ${currentTab === item.id ? 'text-indigo-400' : 'text-zinc-500'}"></i>
+          <span>${item.id}</span>
+        </button>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // SWITCH TAB
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.getElementById('page-header-title').innerText = tabId;
+      renderSubNav();
+      renderContent();
+    }
+
+    // TOGGLE SUB SIDEBAR
+    function toggleSubSidebar() {
+      const sidebar = document.getElementById('sub-sidebar');
+      const expandBtn = document.getElementById('sub-sidebar-expand-btn');
+      subSidebarCollapsed = !subSidebarCollapsed;
+      
+      if(subSidebarCollapsed) {
+        sidebar.classList.add('w-0', 'opacity-0', 'overflow-hidden');
+        sidebar.classList.remove('w-56');
+        expandBtn.classList.remove('hidden');
+      } else {
+        sidebar.classList.remove('w-0', 'opacity-0', 'overflow-hidden');
+        sidebar.classList.add('w-56');
+        expandBtn.classList.add('hidden');
+      }
+    }
+
+    // COMMAND PALETTE TOGGLE
+    function toggleCommandModal() {
+      const modal = document.getElementById('command-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    // DRAWER TOGGLE
+    function openDrawer(name, id, budget, desc) {
+      document.getElementById('drawer-project-name').innerText = name;
+      document.getElementById('drawer-project-id').innerText = id;
+      document.getElementById('drawer-project-budget').innerText = budget;
+      document.getElementById('drawer-project-desc').innerText = desc;
+      document.getElementById('project-drawer').classList.remove('hidden');
+    }
+    function closeDrawer() {
+      document.getElementById('project-drawer').classList.add('hidden');
+    }
+
+    // KEYBOARD SHORTCUTS (Cmd+K & Cmd+B)
+    window.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setCommandOpen(prev => !prev);
+        toggleCommandModal();
       }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
         e.preventDefault();
-        setSubSidebarOpen(prev => !prev);
+        toggleSubSidebar();
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    });
 
-  const currentGroupObj = navStructure.find(g => g.group === activeGroup) || navStructure[0];
-
-  return (
-    <div className="dark min-h-screen bg-[#0b0c10] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-indigo-500 selection:text-white">
-      <div className="flex flex-1 overflow-hidden">
-        
-        {/* 1. DUAL-SIDEBAR: PRIMARY ICON RAIL */}
-        <aside className="hidden md:flex flex-col items-center py-4 w-16 border-r border-white/5 bg-[#0e0f14] z-30 justify-between">
-          <div className="flex flex-col items-center gap-6">
-            {/* Brand Emblem */}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-indigo-400 flex items-center justify-center font-black text-white shadow-lg shadow-indigo-500/30 cursor-pointer">
-              {BRAND_CONFIG.initial}
-            </div>
-
-            {/* Primary Rail Icons */}
-            <div className="flex flex-col gap-2 mt-2">
-              {navStructure.map((nav) => {
-                const Icon = nav.icon;
-                const isGroupActive = activeGroup === nav.group;
-                return (
-                  <button
-                    key={nav.group}
-                    onClick={() => {
-                      setActiveGroup(nav.group);
-                      setActiveTab(nav.subItems[0].id);
-                    }}
-                    className={`p-3 rounded-xl transition-all relative group ${
-                      isGroupActive 
-                        ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' 
-                        : 'text-zinc-500 hover:text-zinc-200 hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    {/* Tooltip */}
-                    <span className="absolute left-16 top-2 bg-[#181a24] text-white text-[11px] font-semibold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap border border-white/10 shadow-xl z-50">
-                      {nav.group}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center gap-3">
-            <button 
-              onClick={() => setCommandOpen(true)}
-              className="p-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-              title="Command Palette (Cmd+K)"
-            >
-              <Command className="w-5 h-5" />
-            </button>
-            <div className="w-8 h-8 rounded-full border border-white/10 overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" alt="Avatar" className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </aside>
-
-        {/* 2. DUAL-SIDEBAR: SECONDARY CONTEXTUAL FLYOUT */}
-        <aside className={`hidden md:flex flex-col border-r border-white/5 bg-[#101218] transition-all duration-300 z-20 ${subSidebarOpen ? 'w-56' : 'w-0 overflow-hidden opacity-0'}`}>
-          <div className="h-16 flex items-center justify-between px-4 border-b border-white/5">
-            <span className="font-bold text-xs uppercase tracking-wider text-zinc-400">{activeGroup} Module</span>
-            <button onClick={() => setSubSidebarOpen(false)} className="text-zinc-500 hover:text-zinc-300 p-1">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-          </div>
-
-          <nav className="p-3 space-y-1 flex-1">
-            {currentGroupObj.subItems.map((sub) => {
-              const Icon = sub.icon;
-              const isTabActive = activeTab === sub.id;
-              return (
-                <button
-                  key={sub.id}
-                  onClick={() => setActiveTab(sub.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                    isTabActive 
-                      ? 'bg-gradient-to-r from-indigo-600/20 to-violet-600/10 text-indigo-300 border border-indigo-500/30' 
-                      : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5'
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${isTabActive ? 'text-indigo-400' : 'text-zinc-500'}`} />
-                  <span>{sub.id}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
-
-        {/* MOBILE MENU */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 md:hidden" onClick={() => setMobileMenuOpen(false)}>
-            <div className="w-72 bg-[#101218] h-full p-4 border-r border-white/10" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-center pb-4 border-b border-white/10 mb-4">
+    // CONTENT RENDERER
+    function renderContent() {
+      const main = document.getElementById('main-content');
+      
+      if (currentTab === 'Dashboard') {
+        main.innerHTML = `
+          <div class="space-y-6">
+            <!-- BENTO ROW 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <!-- HERO BENTO CARD -->
+              <div class="lg:col-span-2 bg-gradient-to-br from-indigo-950/40 via-[#12141c] to-[#12141c] border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between">
                 <div>
-                  <span className="font-bold text-indigo-400 text-sm block">{BRAND_CONFIG.name}</span>
-                  <span className="text-[10px] text-zinc-500 uppercase font-semibold">{BRAND_CONFIG.suite}</span>
+                  <div class="flex items-center gap-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> Pahina Builder Suite • CRM Hub
+                  </div>
+                  <h2 class="text-2xl font-bold text-white tracking-tight">Welcome back, Agency Lead!</h2>
+                  <p class="text-xs text-zinc-400 mt-1 max-w-sm">Revenue trend up by 18.4% compared to target forecasts this quarter across all client accounts.</p>
                 </div>
-                <button onClick={() => setMobileMenuOpen(false)}><X className="w-5 h-5" /></button>
+                <div class="flex items-center gap-4 mt-6">
+                  <div>
+                    <div class="text-2xl font-bold text-white">$148,200</div>
+                    <div class="text-[10px] text-zinc-500 font-medium">Monthly Recurring Revenue</div>
+                  </div>
+                  <div class="h-8 w-px bg-white/10"></div>
+                  <div>
+                    <div class="text-2xl font-bold text-emerald-400">99.98%</div>
+                    <div class="text-[10px] text-zinc-500 font-medium">Client Retainer SLA Score</div>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-4">
-                {navStructure.map(g => (
-                  <div key={g.group}>
-                    <div className="text-[10px] uppercase font-bold text-zinc-500 mb-2">{g.group}</div>
-                    <div className="space-y-1">
-                      {g.subItems.map(sub => (
-                        <button
-                          key={sub.id}
-                          onClick={() => { setActiveGroup(g.group); setActiveTab(sub.id); setMobileMenuOpen(false); }}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-xs ${activeTab === sub.id ? 'bg-indigo-600/30 text-indigo-300' : 'text-zinc-400'}`}
-                        >
-                          {sub.id}
-                        </button>
-                      ))}
+
+              <!-- METRIC CARD 1 -->
+              <div class="bg-[#12141c] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-white/10 transition-all">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-medium text-zinc-400">Total Expense</span>
+                  <span class="p-2 rounded-xl bg-rose-500/10 text-rose-400"><i data-lucide="arrow-down-right" class="w-4 h-4"></i></span>
+                </div>
+                <div class="mt-4">
+                  <div class="text-2xl font-bold text-white">$32,450</div>
+                  <div class="text-[11px] text-emerald-400 mt-1">↓ 3.1% under budget</div>
+                </div>
+              </div>
+
+              <!-- METRIC CARD 2 -->
+              <div class="bg-[#12141c] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-white/10 transition-all">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-medium text-zinc-400">Pending Invoices</span>
+                  <span class="p-2 rounded-xl bg-amber-500/10 text-amber-400"><i data-lucide="clock" class="w-4 h-4"></i></span>
+                </div>
+                <div class="mt-4">
+                  <div class="text-2xl font-bold text-white">$18,900</div>
+                  <div class="text-[11px] text-zinc-500 mt-1">4 invoices need approval</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- BENTO ROW 2: CHARTS & ACTIVE WORKLOADS -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2 bg-[#12141c] border border-white/5 rounded-2xl p-6 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Revenue Progression</h3>
+                    <p class="text-xs text-zinc-400">Monthly revenue vs forecast targets</p>
+                  </div>
+                </div>
+                <div class="h-64 w-full relative">
+                  <canvas id="dashboardChart"></canvas>
+                </div>
+              </div>
+
+              <div class="bg-[#12141c] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                  <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold text-white">Active Sprints</h3>
+                    <span class="text-[10px] text-indigo-400 font-semibold cursor-pointer" onclick="switchTab('Projects')">View All</span>
+                  </div>
+                  <div class="space-y-3">
+                    <div onclick="openDrawer('Cloud Migration', 'P-101', '$88,500 / $120,000', 'AWS Microservices Migration')" class="p-3 bg-[#181a24] rounded-xl border border-white/5 hover:border-indigo-500/40 cursor-pointer transition-all">
+                      <div class="flex justify-between items-start mb-1">
+                        <span class="text-xs font-semibold text-white">Cloud Migration</span>
+                        <span class="text-[10px] text-indigo-400 font-mono">74%</span>
+                      </div>
+                      <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-indigo-500 rounded-full" style="width: 74%"></div>
+                      </div>
+                    </div>
+
+                    <div onclick="openDrawer('Mobile Client v3', 'P-102', '$42,000 / $95,000', 'React Native Mobile App')" class="p-3 bg-[#181a24] rounded-xl border border-white/5 hover:border-indigo-500/40 cursor-pointer transition-all">
+                      <div class="flex justify-between items-start mb-1">
+                        <span class="text-xs font-semibold text-white">Mobile Client v3</span>
+                        <span class="text-[10px] text-indigo-400 font-mono">45%</span>
+                      </div>
+                      <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-indigo-500 rounded-full" style="width: 45%"></div>
+                      </div>
                     </div>
                   </div>
-                ))}
+                </div>
+                <div class="pt-4 border-t border-white/5 text-[11px] text-zinc-500 flex justify-between items-center">
+                  <span>Click project for drawer view</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </div>
               </div>
             </div>
           </div>
-        )}
-
-        {/* MAIN COMMAND CENTER BODY */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          
-          {/* HEADER BAR */}
-          <header className="h-16 border-b border-white/5 bg-[#0b0c10]/80 backdrop-blur-md px-6 flex items-center justify-between z-10">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setMobileMenuOpen(true)} className="md:hidden p-2 bg-white/5 rounded-lg">
-                <Menu className="w-5 h-5 text-zinc-400" />
-              </button>
-              {!subSidebarOpen && (
-                <button onClick={() => setSubSidebarOpen(true)} className="hidden md:flex p-1.5 bg-white/5 rounded-lg text-zinc-400 hover:text-white mr-2">
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              )}
-              <h1 className="text-base font-bold text-white tracking-tight">{activeTab}</h1>
+        `;
+        initDashboardChart();
+      } else if (currentTab === 'Projects') {
+        main.innerHTML = `
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div class="bg-[#12141c] border border-white/5 rounded-xl p-4 text-xs font-bold text-zinc-200">24 Total Projects</div>
+              <div class="bg-[#12141c] border border-white/5 rounded-xl p-4 text-xs font-bold text-zinc-200">14 Active</div>
+              <div class="bg-[#12141c] border border-white/5 rounded-xl p-4 text-xs font-bold text-zinc-200">8 Completed</div>
+              <div class="bg-[#12141c] border border-white/5 rounded-xl p-4 text-xs font-bold text-zinc-200">2 On Hold</div>
             </div>
-
-            {/* COMMAND PALETTE SEARCH TRIGGER */}
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setCommandOpen(true)}
-                className="hidden sm:flex items-center gap-3 bg-[#14161f] border border-white/10 rounded-xl px-3.5 py-1.5 text-xs text-zinc-400 hover:border-indigo-500/50 transition-all w-64"
-              >
-                <Search className="w-3.5 h-3.5 text-zinc-500" />
-                <span className="flex-1 text-left">Search commands...</span>
-                <kbd className="bg-white/10 text-zinc-300 px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>
-              </button>
-
-              <button className="p-2 rounded-xl bg-[#14161f] border border-white/10 text-zinc-400 hover:text-white relative">
-                <Bell className="w-4 h-4" />
-                <span className="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5 ring-2 ring-[#0b0c10]" />
-              </button>
-
-              <button className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium text-xs px-4 py-2 rounded-xl shadow-lg shadow-indigo-600/20 transition-all">
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">New Action</span>
-              </button>
-            </div>
-          </header>
-
-          {/* DYNAMIC SCROLLABLE CONTENT */}
-          <main className="flex-1 overflow-y-auto p-6 space-y-6">
-            
-            {/* 1. ASYMMETRIC BENTO GRID DASHBOARD */}
-            {activeTab === 'Dashboard' && (
-              <div className="space-y-6">
-                
-                {/* BENTO ROW 1 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {/* HERO BENTO CARD */}
-                  <div className="lg:col-span-2 bg-gradient-to-br from-indigo-950/40 via-[#12141c] to-[#12141c] border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -z-10" />
-                    <div>
-                      <div className="flex items-center gap-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
-                        <Sparkles className="w-4 h-4" /> Pahina Builder Suite • CRM Hub
-                      </div>
-                      <h2 className="text-2xl font-bold text-white tracking-tight">Welcome back, Agency Lead!</h2>
-                      <p className="text-xs text-zinc-400 mt-1 max-w-sm">Revenue trend up by 18.4% compared to target forecasts this quarter across all client accounts.</p>
-                    </div>
-                    <div className="flex items-center gap-4 mt-6">
-                      <div>
-                        <div className="text-2xl font-bold text-white">$148,200</div>
-                        <div className="text-[10px] text-zinc-500 font-medium">Monthly Recurring Revenue</div>
-                      </div>
-                      <div className="h-8 w-px bg-white/10" />
-                      <div>
-                        <div className="text-2xl font-bold text-emerald-400">99.98%</div>
-                        <div className="text-[10px] text-zinc-500 font-medium">Client Retainer SLA Score</div>
-                      </div>
-                    </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="bg-[#12141c] border border-white/5 rounded-2xl p-5 space-y-4 hover:border-indigo-500/30 transition-all">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-semibold text-white text-sm">Enterprise Cloud Migration</h4>
+                    <p class="text-xs text-zinc-400 mt-1">Migrating legacy infrastructure to microservices.</p>
                   </div>
-
-                  {/* METRIC CARD 1 */}
-                  <div className="bg-[#12141c] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-white/10 transition-all">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-medium text-zinc-400">Total Expense</span>
-                      <span className="p-2 rounded-xl bg-rose-500/10 text-rose-400"><ArrowDownRight className="w-4 h-4" /></span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="text-2xl font-bold text-white">$32,450</div>
-                      <div className="text-[11px] text-emerald-400 mt-1">↓ 3.1% under budget</div>
-                    </div>
-                  </div>
-
-                  {/* METRIC CARD 2 */}
-                  <div className="bg-[#12141c] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-white/10 transition-all">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-medium text-zinc-400">Pending Invoices</span>
-                      <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400"><Clock className="w-4 h-4" /></span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="text-2xl font-bold text-white">$18,900</div>
-                      <div className="text-[11px] text-zinc-500 mt-1">4 invoices need approval</div>
-                    </div>
-                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Active</span>
                 </div>
-
-                {/* BENTO ROW 2: CHARTS & ACTIVE WORKLOADS */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  
-                  {/* MAIN ANALYTICS BENTO CARD */}
-                  <div className="lg:col-span-2 bg-[#12141c] border border-white/5 rounded-2xl p-6 flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-sm font-semibold text-white">Revenue vs Target Performance</h3>
-                        <p className="text-xs text-zinc-400">Real-time financial progression chart</p>
-                      </div>
-                    </div>
-                    <div className="h-72 w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={salesPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="areaColor" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#6366f1" stopOpacity={0.6} />
-                              <stop offset="100%" stopColor="#6366f1" stopOpacity={0.0} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1f222e" vertical={false} />
-                          <XAxis dataKey="month" stroke="#52525b" fontSize={11} tickLine={false} axisLine={false} />
-                          <YAxis stroke="#52525b" fontSize={11} tickLine={false} axisLine={false} />
-                          <Tooltip content={<CustomChartTooltip />} />
-                          <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2} fill="url(#areaColor)" name="Revenue ($)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* ACTIVE PROJECTS DRAWER TRIGGER LIST */}
-                  <div className="bg-[#12141c] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-sm font-semibold text-white">Active Sprints</h3>
-                        <span className="text-[10px] text-indigo-400 font-semibold cursor-pointer" onClick={() => setActiveTab('Projects')}>View All</span>
-                      </div>
-                      <div className="space-y-3">
-                        {projectsData.slice(0, 3).map(p => (
-                          <div 
-                            key={p.id} 
-                            onClick={() => setSelectedProject(p)}
-                            className="p-3 bg-[#181a24] rounded-xl border border-white/5 hover:border-indigo-500/40 cursor-pointer transition-all"
-                          >
-                            <div className="flex justify-between items-start mb-1">
-                              <span className="text-xs font-semibold text-white">{p.name}</span>
-                              <span className="text-[10px] text-indigo-400 font-mono">{p.progress}%</span>
-                            </div>
-                            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                              <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${p.progress}%` }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="pt-4 border-t border-white/5 text-[11px] text-zinc-500 flex justify-between items-center">
-                      <span>Click project for instant inspection</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </div>
-                  </div>
+                <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div class="h-full bg-indigo-500 rounded-full" style="width: 74%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-zinc-400 pt-2 border-t border-white/5">
+                  <span>Budget: $88,500 / $120,000</span>
+                  <span>Due Nov 30</span>
                 </div>
               </div>
-            )}
-
-            {/* 2. PROJECTS MODULE */}
-            {activeTab === 'Projects' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  {['24 Total Projects', '14 Active', '8 Completed', '2 On Hold'].map((stat, i) => (
-                    <div key={i} className="bg-[#12141c] border border-white/5 rounded-xl p-4 text-xs font-bold text-zinc-200">{stat}</div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {projectsData.map(proj => (
-                    <div key={proj.id} className="bg-[#12141c] border border-white/5 rounded-2xl p-5 space-y-4 hover:border-indigo-500/30 transition-all">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold text-white text-sm">{proj.name}</h4>
-                          <p className="text-xs text-zinc-400 mt-1">{proj.description}</p>
-                        </div>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">{proj.status}</span>
-                      </div>
-                      <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${proj.progress}%` }} />
-                      </div>
-                      <div className="flex justify-between text-xs text-zinc-400 pt-2 border-t border-white/5">
-                        <span>Budget: {proj.spend} / {proj.budget}</span>
-                        <span>Due {proj.dueDate}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 3. EMPLOYEES MODULE */}
-            {activeTab === 'Employees' && (
-              <div className="bg-[#12141c] border border-white/5 rounded-2xl overflow-hidden">
-                <div className="p-4 border-b border-white/5 flex justify-between items-center">
-                  <h3 className="text-sm font-semibold text-white">Team Directory</h3>
-                  <button className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl font-semibold">+ Add Member</button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="border-b border-white/5 bg-white/[0.02] text-zinc-400 uppercase text-[10px] font-bold">
-                        <th className="p-4">Employee</th>
-                        <th className="p-4">Role</th>
-                        <th className="p-4">Department</th>
-                        <th className="p-4">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {teamMembers.map(m => (
-                        <tr key={m.id} className="hover:bg-white/[0.02]">
-                          <td className="p-4 flex items-center gap-3">
-                            <img src={m.avatar} className="w-7 h-7 rounded-full object-cover" />
-                            <span className="font-semibold text-zinc-200">{m.name}</span>
-                          </td>
-                          <td className="p-4 text-zinc-300">{m.role}</td>
-                          <td className="p-4 text-zinc-400">{m.department}</td>
-                          <td className="p-4"><span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400">{m.status}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* 4. INVOICES MODULE */}
-            {activeTab === 'Invoices' && (
-              <div className="bg-[#12141c] border border-white/5 rounded-2xl overflow-hidden">
-                <div className="p-4 border-b border-white/5 flex justify-between items-center">
-                  <h3 className="text-sm font-semibold text-white">Invoice Ledger</h3>
-                  <button className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl font-semibold">+ New Invoice</button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="border-b border-white/5 bg-white/[0.02] text-zinc-400 uppercase text-[10px] font-bold">
-                        <th className="p-4">ID</th>
-                        <th className="p-4">Client</th>
-                        <th className="p-4">Amount</th>
-                        <th className="p-4">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {invoiceRecords.map(inv => (
-                        <tr key={inv.id} className="hover:bg-white/[0.02]">
-                          <td className="p-4 font-mono text-indigo-400">{inv.id}</td>
-                          <td className="p-4 text-zinc-200 font-semibold">{inv.client}</td>
-                          <td className="p-4 text-white font-bold">{inv.amount}</td>
-                          <td className="p-4"><span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400">{inv.status}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* DEFAULT FALLBACK RENDERER FOR REMAINING MODULES */}
-            {!['Dashboard', 'Projects', 'Employees', 'Invoices'].includes(activeTab) && (
-              <div className="bg-[#12141c] border border-white/5 rounded-2xl p-12 text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center mx-auto">
-                  <Layers className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-white">Workstation: {activeTab}</h3>
-                <p className="text-xs text-zinc-400 max-w-sm mx-auto">Connected to PahinaCRM client telemetry streams. Ready for live workflow deployment.</p>
-              </div>
-            )}
-          </main>
-        </div>
-      </div>
-
-      {/* COMMAND PALETTE MODAL (Cmd+K) */}
-      {commandOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-20" onClick={() => setCommandOpen(false)}>
-          <div className="w-full max-w-lg bg-[#14161f] border border-white/10 rounded-2xl shadow-2xl p-4 space-y-4" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
-              <Search className="w-4 h-4 text-zinc-500" />
-              <input type="text" placeholder="Type a command or module name..." autoFocus className="bg-transparent text-sm text-white focus:outline-none w-full" />
-              <kbd className="text-[10px] text-zinc-500 bg-white/5 px-1.5 py-0.5 rounded">ESC</kbd>
-            </div>
-            <div className="space-y-1">
-              <div className="text-[10px] uppercase font-bold text-zinc-500 px-2 py-1">Quick Navigation</div>
-              {['Dashboard', 'Projects', 'Invoices', 'Employees', 'Performance'].map(item => (
-                <button
-                  key={item}
-                  onClick={() => { setActiveTab(item); setCommandOpen(false); }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-300 hover:bg-indigo-600/20 hover:text-indigo-300 transition-all flex items-center justify-between"
-                >
-                  <span>Go to {item}</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-zinc-500" />
-                </button>
-              ))}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* INSPECTION DRAWER PANEL FOR PROJECTS */}
-      {selectedProject && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end" onClick={() => setSelectedProject(null)}>
-          <div className="w-full max-w-md bg-[#12141c] h-full border-l border-white/10 p-6 space-y-6" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center pb-4 border-b border-white/10">
-              <div>
-                <span className="text-[10px] text-indigo-400 font-mono">{selectedProject.id}</span>
-                <h3 className="text-base font-bold text-white">{selectedProject.name}</h3>
-              </div>
-              <button onClick={() => setSelectedProject(null)}><X className="w-5 h-5 text-zinc-400" /></button>
+        `;
+      } else {
+        main.innerHTML = `
+          <div class="bg-[#12141c] border border-white/5 rounded-2xl p-12 text-center space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center mx-auto">
+              <i data-lucide="layers" class="w-6 h-6"></i>
             </div>
-            <div className="space-y-4 text-xs">
-              <div>
-                <span className="text-zinc-500 block mb-1">Description</span>
-                <p className="text-zinc-300">{selectedProject.description}</p>
-              </div>
-              <div>
-                <span className="text-zinc-500 block mb-1">Budget Allocation</span>
-                <div className="text-sm font-bold text-white">{selectedProject.spend} of {selectedProject.budget}</div>
-              </div>
-              <button className="w-full py-2.5 bg-indigo-600 rounded-xl text-white font-semibold shadow-lg shadow-indigo-600/20">
-                Launch Workstation →
-              </button>
-            </div>
+            <h3 class="text-base font-bold text-white">Workstation: ${currentTab}</h3>
+            <p class="text-xs text-zinc-400 max-w-sm mx-auto">Connected to PahinaCRM client telemetry streams. Ready for live workflow deployment.</p>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
+        `;
+      }
+
+      lucide.createIcons();
+    }
+
+    // CHART.JS INITIALIZER
+    function initDashboardChart() {
+      const ctx = document.getElementById('dashboardChart');
+      if (!ctx) return;
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          datasets: [{
+            label: 'Revenue ($)',
+            data: [45000, 52000, 49000, 63000, 58000, 71000, 84000, 79000, 92000, 88000, 105000, 118000],
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#1f222e' }, ticks: { color: '#71717a', font: { size: 10 } } },
+            y: { grid: { color: '#1f222e' }, ticks: { color: '#71717a', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
