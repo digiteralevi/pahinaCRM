@@ -46,7 +46,6 @@
       color: #f4f4f5;
       font-family: 'Inter', sans-serif;
     }
-    /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -117,7 +116,7 @@
       </div>
 
       <nav id="sub-nav-container" class="p-3 space-y-1 flex-1">
-        <!-- Dynamically rendered sub-nav links -->
+        <!-- Sub-nav links dynamically rendered -->
       </nav>
     </aside>
 
@@ -158,7 +157,7 @@
 
       <!-- DYNAMIC SCROLLABLE CONTENT -->
       <main id="main-content" class="flex-1 overflow-y-auto p-6 space-y-6">
-        <!-- Content injects here via JS -->
+        <!-- Main Content -->
       </main>
     </div>
   </div>
@@ -168,7 +167,7 @@
     <div class="w-full max-w-lg bg-[#14161f] border border-white/10 rounded-2xl shadow-2xl p-4 space-y-4" onclick="event.stopPropagation()">
       <div class="flex items-center gap-3 border-b border-white/10 pb-3">
         <i data-lucide="search" class="w-4 h-4 text-zinc-500"></i>
-        <input type="text" placeholder="Type a command or module name..." autofocus class="bg-transparent text-sm text-white focus:outline-none w-full" />
+        <input type="text" placeholder="Type a command or module name..." class="bg-transparent text-sm text-white focus:outline-none w-full" />
         <kbd class="text-[10px] text-zinc-500 bg-white/5 px-1.5 py-0.5 rounded">ESC</kbd>
       </div>
       <div class="space-y-1">
@@ -221,7 +220,6 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // NAVIGATION STRUCTURE DATA
     const navStructure = [
       {
         group: 'Overview',
@@ -257,39 +255,35 @@
       }
     ];
 
-    // STATE VARIABLES
     let currentGroup = 'Overview';
     let currentTab = 'Dashboard';
     let subSidebarCollapsed = false;
+    let chartInstance = null;
 
-    // INITIALIZATION
     window.onload = function() {
       renderSubNav();
       renderContent();
-      lucide.createIcons();
+      if(typeof lucide !== 'undefined') lucide.createIcons();
     };
 
-    // SWITCH GROUP (Rail Click)
     function switchGroup(groupName) {
       currentGroup = groupName;
       const groupObj = navStructure.find(g => g.group === groupName);
       currentTab = groupObj.subItems[0].id;
       
-      // Update Rail Buttons Styling
       document.querySelectorAll('.rail-btn').forEach(btn => {
         btn.className = "rail-btn p-3 rounded-xl transition-all relative group text-zinc-500 hover:text-zinc-200 hover:bg-white/5";
       });
-      const activeRailBtn = document.getElementById(`rail-${groupName}`);
+      const activeRailBtn = document.getElementById('rail-' + groupName);
       if(activeRailBtn) {
         activeRailBtn.className = "rail-btn p-3 rounded-xl transition-all relative group text-indigo-400 bg-indigo-600/20 border border-indigo-500/30";
       }
 
-      document.getElementById('group-title').innerText = `${groupName} Module`;
+      document.getElementById('group-title').innerText = groupName + ' Module';
       renderSubNav();
       switchTab(currentTab);
     }
 
-    // RENDER SECONDARY NAV
     function renderSubNav() {
       const container = document.getElementById('sub-nav-container');
       const groupObj = navStructure.find(g => g.group === currentGroup);
@@ -305,10 +299,9 @@
         </button>
       `).join('');
 
-      lucide.createIcons();
+      if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // SWITCH TAB
     function switchTab(tabId) {
       currentTab = tabId;
       document.getElementById('page-header-title').innerText = tabId;
@@ -316,7 +309,6 @@
       renderContent();
     }
 
-    // TOGGLE SUB SIDEBAR
     function toggleSubSidebar() {
       const sidebar = document.getElementById('sub-sidebar');
       const expandBtn = document.getElementById('sub-sidebar-expand-btn');
@@ -333,13 +325,11 @@
       }
     }
 
-    // COMMAND PALETTE TOGGLE
     function toggleCommandModal() {
       const modal = document.getElementById('command-modal');
       modal.classList.toggle('hidden');
     }
 
-    // DRAWER TOGGLE
     function openDrawer(name, id, budget, desc) {
       document.getElementById('drawer-project-name').innerText = name;
       document.getElementById('drawer-project-id').innerText = id;
@@ -351,7 +341,6 @@
       document.getElementById('project-drawer').classList.add('hidden');
     }
 
-    // KEYBOARD SHORTCUTS (Cmd+K & Cmd+B)
     window.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -363,16 +352,13 @@
       }
     });
 
-    // CONTENT RENDERER
     function renderContent() {
       const main = document.getElementById('main-content');
       
       if (currentTab === 'Dashboard') {
         main.innerHTML = `
           <div class="space-y-6">
-            <!-- BENTO ROW 1 -->
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <!-- HERO BENTO CARD -->
               <div class="lg:col-span-2 bg-gradient-to-br from-indigo-950/40 via-[#12141c] to-[#12141c] border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between">
                 <div>
                   <div class="flex items-center gap-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
@@ -394,7 +380,6 @@
                 </div>
               </div>
 
-              <!-- METRIC CARD 1 -->
               <div class="bg-[#12141c] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-white/10 transition-all">
                 <div class="flex justify-between items-start">
                   <span class="text-xs font-medium text-zinc-400">Total Expense</span>
@@ -406,7 +391,6 @@
                 </div>
               </div>
 
-              <!-- METRIC CARD 2 -->
               <div class="bg-[#12141c] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-white/10 transition-all">
                 <div class="flex justify-between items-start">
                   <span class="text-xs font-medium text-zinc-400">Pending Invoices</span>
@@ -419,13 +403,12 @@
               </div>
             </div>
 
-            <!-- BENTO ROW 2: CHARTS & ACTIVE WORKLOADS -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div class="lg:col-span-2 bg-[#12141c] border border-white/5 rounded-2xl p-6 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                   <div>
                     <h3 class="text-sm font-semibold text-white">Revenue Progression</h3>
-                    <p class="text-xs text-zinc-400">Monthly revenue vs forecast targets</p>
+                    <p class="text-xs text-zinc-400">Monthly revenue vs forecast targets (Hover cursor for live tracking)</p>
                   </div>
                 </div>
                 <div class="h-64 w-full relative">
@@ -469,7 +452,7 @@
             </div>
           </div>
         `;
-        initDashboardChart();
+        setTimeout(initDashboardChart, 50);
       } else if (currentTab === 'Projects') {
         main.innerHTML = `
           <div class="space-y-6">
@@ -511,15 +494,18 @@
         `;
       }
 
-      lucide.createIcons();
+      if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // CHART.JS INITIALIZER
     function initDashboardChart() {
       const ctx = document.getElementById('dashboardChart');
       if (!ctx) return;
 
-      new Chart(ctx, {
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -527,18 +513,55 @@
             label: 'Revenue ($)',
             data: [45000, 52000, 49000, 63000, 58000, 71000, 84000, 79000, 92000, 88000, 105000, 118000],
             borderColor: '#6366f1',
-            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderWidth: 3,
+            backgroundColor: 'rgba(99, 102, 241, 0.12)',
             fill: true,
-            tension: 0.4
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#6366f1',
+            pointHoverBackgroundColor: '#818cf8',
+            pointBorderColor: '#0b0c10',
+            pointBorderWidth: 2
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#14161f',
+              titleColor: '#9ca3af',
+              bodyColor: '#ffffff',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1,
+              padding: 12,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  return 'Revenue: $' + context.parsed.y.toLocaleString();
+                }
+              }
+            }
+          },
           scales: {
-            x: { grid: { color: '#1f222e' }, ticks: { color: '#71717a', font: { size: 10 } } },
-            y: { grid: { color: '#1f222e' }, ticks: { color: '#71717a', font: { size: 10 } } }
+            x: { 
+              grid: { color: 'rgba(255,255,255,0.03)' }, 
+              ticks: { color: '#71717a', font: { size: 10 } } 
+            },
+            y: { 
+              grid: { color: 'rgba(255,255,255,0.03)' }, 
+              ticks: { 
+                color: '#71717a', 
+                font: { size: 10 },
+                callback: function(val) { return '$' + (val/1000) + 'k'; }
+              } 
+            }
           }
         }
       });
