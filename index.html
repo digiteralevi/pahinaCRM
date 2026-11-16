@@ -590,5 +590,32 @@ html.pahina-dark #pahina-bg{--pahina-ov:linear-gradient(rgba(7,10,22,.80),rgba(7
       });
     }
   </script>
+<!-- PAHINA-CRM-MOBILE-MENU -->
+<div id="m-menu" class="fixed inset-0 z-[60] hidden md:hidden" onclick="toggleMobileMenu(false)">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+  <nav class="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-[#101218] border-r border-white/10 p-4 overflow-y-auto" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <span class="font-bold text-sm text-white">Pahina CRM</span>
+      <button onclick="toggleMobileMenu(false)" class="p-2 bg-white/5 rounded-lg text-zinc-300" aria-label="Close menu">&times;</button>
+    </div>
+    <div id="m-menu-list" class="space-y-4"></div>
+  </nav>
+</div>
+<script>
+function toggleMobileMenu(force){
+  var m=document.getElementById('m-menu');if(!m)return;
+  var open=typeof force==='boolean'?force:m.classList.contains('hidden');
+  if(open){
+    var list=document.getElementById('m-menu-list');
+    list.innerHTML=navStructure.map(function(g){return '<div><div class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5 px-2">'+g.group+'</div>'+
+      g.subItems.map(function(it){var on=(typeof currentTab!=='undefined'&&currentTab===it.id);
+        return '<button type="button" data-g="'+g.group+'" data-t="'+it.id+'" class="w-full text-left px-3 py-3 rounded-xl text-sm font-semibold '+(on?'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30':'text-zinc-300')+'">'+(it.label||it.name||it.id)+'</button>'}).join('')+'</div>'}).join('');
+    list.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){
+      if(currentGroup!==b.dataset.g){currentGroup=b.dataset.g;try{switchGroup(b.dataset.g)}catch(e){}}
+      switchTab(b.dataset.t);toggleMobileMenu(false);})});
+  }
+  m.classList.toggle('hidden',!open);
+}
+</script>
 </body>
 </html>
